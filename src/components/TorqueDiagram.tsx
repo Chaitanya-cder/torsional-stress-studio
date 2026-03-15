@@ -2,19 +2,21 @@ import { useMemo } from 'react';
 import { AnalysisResult, ShaftConfig } from '@/hooks/useShaftAnalysis';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { TrendingUp } from 'lucide-react';
+import { LengthUnit, convertFromMm } from '@/lib/units';
 
 interface Props {
   analysis: AnalysisResult;
   shaft: ShaftConfig;
+  lengthUnit: LengthUnit;
 }
 
-export default function TorqueDiagram({ analysis, shaft }: Props) {
+export default function TorqueDiagram({ analysis, shaft, lengthUnit }: Props) {
   const data = useMemo(() => {
     return analysis.positions.map((x, i) => ({
-      x: Math.round(x * 10) / 10,
+      x: Math.round(convertFromMm(x, lengthUnit) * 1000) / 1000,
       T: Math.round(analysis.internalTorques[i] * 100) / 100,
     }));
-  }, [analysis]);
+  }, [analysis, lengthUnit]);
 
   const maxAbsT = Math.max(...analysis.internalTorques.map(Math.abs), 1);
 
@@ -39,7 +41,7 @@ export default function TorqueDiagram({ analysis, shaft }: Props) {
               dataKey="x"
               stroke="hsl(240 5% 35%)"
               tick={{ fontSize: 10, fontFamily: 'JetBrains Mono', fill: 'hsl(240 5% 55%)' }}
-              label={{ value: 'Position (mm)', position: 'bottom', offset: 5, style: { fontSize: 10, fill: 'hsl(240 5% 55%)' } }}
+              label={{ value: `Position (${lengthUnit})`, position: 'bottom', offset: 5, style: { fontSize: 10, fill: 'hsl(240 5% 55%)' } }}
             />
             <YAxis
               stroke="hsl(240 5% 35%)"
@@ -56,7 +58,7 @@ export default function TorqueDiagram({ analysis, shaft }: Props) {
                 fontSize: '12px',
                 fontFamily: 'JetBrains Mono',
               }}
-              labelFormatter={(v) => `x = ${v} mm`}
+              labelFormatter={(v) => `x = ${v} ${lengthUnit}`}
               formatter={(v: number) => [`${v.toFixed(1)} N·m`, 'Torque']}
             />
             <Line

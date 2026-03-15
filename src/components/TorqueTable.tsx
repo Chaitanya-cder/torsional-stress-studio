@@ -2,6 +2,7 @@ import { TorqueLoad, ShaftConfig } from '@/hooks/useShaftAnalysis';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2, RotateCcw } from 'lucide-react';
+import { LengthUnit, convertFromMm, convertToMm } from '@/lib/units';
 
 interface Props {
   torques: TorqueLoad[];
@@ -9,9 +10,15 @@ interface Props {
   onAdd: () => void;
   onRemove: (id: string) => void;
   onUpdate: (id: string, field: keyof TorqueLoad, value: number) => void;
+  lengthUnit: LengthUnit;
 }
 
-export default function TorqueTable({ torques, shaft, onAdd, onRemove, onUpdate }: Props) {
+export default function TorqueTable({ torques, shaft, onAdd, onRemove, onUpdate, lengthUnit }: Props) {
+  const handlePositionChange = (id: string, value: string) => {
+    const num = parseFloat(value) || 0;
+    onUpdate(id, 'position', convertToMm(num, lengthUnit));
+  };
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -28,7 +35,7 @@ export default function TorqueTable({ torques, shaft, onAdd, onRemove, onUpdate 
 
       <div className="space-y-1.5">
         <div className="grid grid-cols-[1fr_1fr_32px] gap-2 px-1">
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Position (mm)</span>
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Position ({lengthUnit})</span>
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Torque (N·m)</span>
           <span />
         </div>
@@ -41,10 +48,10 @@ export default function TorqueTable({ torques, shaft, onAdd, onRemove, onUpdate 
           <div key={t.id} className="grid grid-cols-[1fr_1fr_32px] gap-2 items-center">
             <Input
               type="number"
-              value={t.position}
+              value={parseFloat(convertFromMm(t.position, lengthUnit).toPrecision(10))}
               min={0}
-              max={shaft.length}
-              onChange={e => onUpdate(t.id, 'position', parseFloat(e.target.value) || 0)}
+              max={convertFromMm(shaft.length, lengthUnit)}
+              onChange={e => handlePositionChange(t.id, e.target.value)}
               className="font-mono text-sm h-8 bg-background"
             />
             <Input

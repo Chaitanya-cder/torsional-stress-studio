@@ -1,13 +1,14 @@
-import { useMemo } from 'react';
 import { ShaftConfig, TorqueLoad } from '@/hooks/useShaftAnalysis';
 import { Box } from 'lucide-react';
+import { LengthUnit, convertFromMm } from '@/lib/units';
 
 interface Props {
   shaft: ShaftConfig;
   torques: TorqueLoad[];
+  lengthUnit: LengthUnit;
 }
 
-export default function ShaftSchematic({ shaft, torques }: Props) {
+export default function ShaftSchematic({ shaft, torques, lengthUnit }: Props) {
   const svgWidth = 500;
   const svgHeight = 160;
   const shaftY = svgHeight / 2;
@@ -18,6 +19,7 @@ export default function ShaftSchematic({ shaft, torques }: Props) {
   const shaftLen = shaftRight - shaftLeft;
 
   const posToX = (pos: number) => shaftLeft + (pos / shaft.length) * shaftLen;
+  const fmt = (mm: number) => parseFloat(convertFromMm(mm, lengthUnit).toPrecision(6));
 
   return (
     <div className="space-y-2">
@@ -29,7 +31,6 @@ export default function ShaftSchematic({ shaft, torques }: Props) {
       </div>
 
       <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full" style={{ maxHeight: 180 }}>
-        {/* Grid pattern background */}
         <defs>
           <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
             <path d="M 20 0 L 0 0 0 20" fill="none" stroke="hsl(240 5% 10%)" strokeWidth="0.5" />
@@ -43,7 +44,6 @@ export default function ShaftSchematic({ shaft, torques }: Props) {
 
         <rect width={svgWidth} height={svgHeight} fill="url(#grid)" rx="4" />
 
-        {/* Shaft body */}
         <rect
           x={shaftLeft}
           y={shaftY - shaftH / 2}
@@ -55,7 +55,6 @@ export default function ShaftSchematic({ shaft, torques }: Props) {
           strokeWidth={1}
         />
 
-        {/* Center line */}
         <line
           x1={shaftLeft - 10}
           y1={shaftY}
@@ -66,20 +65,17 @@ export default function ShaftSchematic({ shaft, torques }: Props) {
           strokeDasharray="4 3"
         />
 
-        {/* Dimension line */}
         <line x1={shaftLeft} y1={shaftY + shaftH / 2 + 16} x2={shaftRight} y2={shaftY + shaftH / 2 + 16} stroke="hsl(240 5% 35%)" strokeWidth={0.5} />
         <line x1={shaftLeft} y1={shaftY + shaftH / 2 + 10} x2={shaftLeft} y2={shaftY + shaftH / 2 + 22} stroke="hsl(240 5% 35%)" strokeWidth={0.5} />
         <line x1={shaftRight} y1={shaftY + shaftH / 2 + 10} x2={shaftRight} y2={shaftY + shaftH / 2 + 22} stroke="hsl(240 5% 35%)" strokeWidth={0.5} />
         <text x={(shaftLeft + shaftRight) / 2} y={shaftY + shaftH / 2 + 28} textAnchor="middle" fill="hsl(240 5% 55%)" fontSize="9" fontFamily="JetBrains Mono">
-          L = {shaft.length} mm
+          L = {fmt(shaft.length)} {lengthUnit}
         </text>
 
-        {/* Diameter annotation */}
         <text x={shaftLeft - 5} y={shaftY + 4} textAnchor="end" fill="hsl(240 5% 55%)" fontSize="8" fontFamily="JetBrains Mono">
-          ∅{shaft.diameter}
+          ∅{fmt(shaft.diameter)}
         </text>
 
-        {/* Torque arrows */}
         {torques.map(t => {
           const x = posToX(t.position);
           const dir = t.magnitude >= 0 ? 1 : -1;
@@ -88,14 +84,12 @@ export default function ShaftSchematic({ shaft, torques }: Props) {
 
           return (
             <g key={t.id}>
-              {/* Curved arrow */}
               <path
                 d={`M ${x + dir * arrowR} ${shaftY - arrowR * 0.6} A ${arrowR} ${arrowR * 0.6} 0 0 ${dir > 0 ? 1 : 0} ${x + dir * arrowR} ${shaftY + arrowR * 0.6}`}
                 fill="none"
                 stroke={color}
                 strokeWidth={2}
               />
-              {/* Arrow head */}
               <polygon
                 points={
                   dir > 0
@@ -104,17 +98,14 @@ export default function ShaftSchematic({ shaft, torques }: Props) {
                 }
                 fill={color}
               />
-              {/* Label */}
               <text x={x} y={shaftY - shaftH / 2 - 8} textAnchor="middle" fill={color} fontSize="9" fontFamily="JetBrains Mono" fontWeight="600">
                 {t.magnitude > 0 ? '+' : ''}{t.magnitude} N·m
               </text>
-              {/* Position marker */}
               <line x1={x} y1={shaftY - shaftH / 2} x2={x} y2={shaftY + shaftH / 2} stroke={color} strokeWidth={1} strokeDasharray="2 2" />
             </g>
           );
         })}
 
-        {/* Fixed support (left) */}
         <g>
           <rect x={shaftLeft - 8} y={shaftY - shaftH / 2 - 6} width={8} height={shaftH + 12} fill="hsl(240 5% 12%)" stroke="hsl(240 5% 25%)" strokeWidth={1} />
           {[0, 1, 2, 3, 4].map(i => (
