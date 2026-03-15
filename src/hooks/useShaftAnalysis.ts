@@ -68,6 +68,7 @@ export function useShaftAnalysis() {
     return {
       positions,
       internalTorques,
+      shearStresses,
       maxShearStress,
       polarMoment: J,
       yieldExceeded,
