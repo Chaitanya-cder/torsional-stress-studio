@@ -16,6 +16,7 @@ export interface ShaftConfig {
 export interface AnalysisResult {
   positions: number[];
   internalTorques: number[];
+  shearStresses: number[];
   maxShearStress: number;
   polarMoment: number;
   yieldExceeded: boolean;
