@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { AnalysisResult, ShaftConfig } from '@/hooks/useShaftAnalysis';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
-import { TrendingUp } from 'lucide-react';
+import { Activity } from 'lucide-react';
 import { LengthUnit, convertFromMm } from '@/lib/units';
 
 interface Props {
@@ -10,22 +10,23 @@ interface Props {
   lengthUnit: LengthUnit;
 }
 
-export default function TorqueDiagram({ analysis, shaft, lengthUnit }: Props) {
+export default function ShearStressDiagram({ analysis, shaft, lengthUnit }: Props) {
   const data = useMemo(() => {
     return analysis.positions.map((x, i) => ({
       x: Math.round(convertFromMm(x, lengthUnit) * 1000) / 1000,
-      T: Math.round(analysis.internalTorques[i] * 100) / 100,
+      τ: Math.round(analysis.shearStresses[i] * 100) / 100,
     }));
   }, [analysis, lengthUnit]);
 
-  const maxAbsT = Math.max(...analysis.internalTorques.map(Math.abs), 1);
+  const maxStress = Math.max(...analysis.shearStresses, 1);
+  const yieldLine = shaft.yieldStrength;
 
   return (
     <div className="h-full flex flex-col">
       <div className="flex items-center gap-2 mb-3">
-        <TrendingUp className="h-4 w-4 text-primary" />
+        <Activity className="h-4 w-4 text-primary" />
         <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Internal Torque Diagram
+          Shear Stress Diagram
         </h3>
       </div>
 
@@ -46,10 +47,18 @@ export default function TorqueDiagram({ analysis, shaft, lengthUnit }: Props) {
             <YAxis
               stroke="hsl(240 5% 35%)"
               tick={{ fontSize: 10, fontFamily: 'JetBrains Mono', fill: 'hsl(240 5% 55%)' }}
-              label={{ value: 'T (N·m)', angle: -90, position: 'insideLeft', offset: -5, style: { fontSize: 10, fill: 'hsl(240 5% 55%)' } }}
-              domain={[-maxAbsT * 1.2, maxAbsT * 1.2]}
+              label={{ value: 'τ (MPa)', angle: -90, position: 'insideLeft', offset: -5, style: { fontSize: 10, fill: 'hsl(240 5% 55%)' } }}
+              domain={[0, Math.max(maxStress, yieldLine) * 1.2]}
             />
-            <ReferenceLine y={0} stroke="hsl(240 5% 25%)" strokeWidth={1} />
+            {yieldLine > 0 && (
+              <ReferenceLine
+                y={yieldLine}
+                stroke="hsl(347 77% 50%)"
+                strokeDasharray="6 3"
+                strokeWidth={1.5}
+                label={{ value: `τ_yield = ${yieldLine} MPa`, position: 'right', fill: 'hsl(347 77% 50%)', fontSize: 9, fontFamily: 'JetBrains Mono' }}
+              />
+            )}
             <Tooltip
               contentStyle={{
                 backgroundColor: 'hsl(240 10% 5.5%)',
@@ -59,15 +68,15 @@ export default function TorqueDiagram({ analysis, shaft, lengthUnit }: Props) {
                 fontFamily: 'JetBrains Mono',
               }}
               labelFormatter={(v) => `x = ${v} ${lengthUnit}`}
-              formatter={(v: number) => [`${v.toFixed(1)} N·m`, 'Torque']}
+              formatter={(v: number) => [`${v.toFixed(2)} MPa`, 'τ']}
             />
             <Line
               type="stepAfter"
-              dataKey="T"
-              stroke="hsl(160 84% 39%)"
+              dataKey="τ"
+              stroke="hsl(38 92% 50%)"
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 4, fill: 'hsl(160 84% 39%)' }}
+              activeDot={{ r: 4, fill: 'hsl(38 92% 50%)' }}
             />
           </LineChart>
         </ResponsiveContainer>

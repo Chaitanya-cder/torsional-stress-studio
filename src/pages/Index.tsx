@@ -1,19 +1,22 @@
+import { useState } from 'react';
 import { useShaftAnalysis } from '@/hooks/useShaftAnalysis';
 import ShaftConfigPanel from '@/components/ShaftConfigPanel';
 import TorqueTable from '@/components/TorqueTable';
 import TorqueDiagram from '@/components/TorqueDiagram';
+import ShearStressDiagram from '@/components/ShearStressDiagram';
 import StressHeatmap from '@/components/StressHeatmap';
 import ShaftSchematic from '@/components/ShaftSchematic';
 import ResultsPanel from '@/components/ResultsPanel';
 import { Separator } from '@/components/ui/separator';
 import { Cog } from 'lucide-react';
+import { LengthUnit } from '@/lib/units';
 
 const Index = () => {
   const { shaft, setShaft, torques, addTorque, removeTorque, updateTorque, analysis } = useShaftAnalysis();
+  const [lengthUnit, setLengthUnit] = useState<LengthUnit>('mm');
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b border-border px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center">
@@ -33,9 +36,8 @@ const Index = () => {
       </header>
 
       <div className="flex flex-col lg:flex-row">
-        {/* Sidebar */}
         <aside className="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-border p-5 space-y-5 lg:min-h-[calc(100vh-53px)] lg:overflow-y-auto">
-          <ShaftConfigPanel shaft={shaft} onChange={setShaft} />
+          <ShaftConfigPanel shaft={shaft} onChange={setShaft} lengthUnit={lengthUnit} onLengthUnitChange={setLengthUnit} />
           <Separator />
           <TorqueTable
             torques={torques}
@@ -43,27 +45,28 @@ const Index = () => {
             onAdd={addTorque}
             onRemove={removeTorque}
             onUpdate={updateTorque}
+            lengthUnit={lengthUnit}
           />
         </aside>
 
-        {/* Main content */}
         <main className="flex-1 p-5 space-y-5 overflow-x-hidden">
-          {/* Results bar */}
           <ResultsPanel analysis={analysis} shaft={shaft} />
 
-          {/* Shaft schematic */}
           <div className="rounded-lg border border-border p-4 surface-raised">
-            <ShaftSchematic shaft={shaft} torques={torques} />
+            <ShaftSchematic shaft={shaft} torques={torques} lengthUnit={lengthUnit} />
           </div>
 
-          {/* Charts row */}
-          <div className="grid grid-cols-1 xl:grid-cols-[1fr_280px] gap-5">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
             <div className="rounded-lg border border-border p-4 surface-raised h-[320px]">
-              <TorqueDiagram analysis={analysis} shaft={shaft} />
+              <TorqueDiagram analysis={analysis} shaft={shaft} lengthUnit={lengthUnit} />
             </div>
-            <div className="rounded-lg border border-border p-4 surface-raised flex items-center justify-center">
-              <StressHeatmap analysis={analysis} shaft={shaft} />
+            <div className="rounded-lg border border-border p-4 surface-raised h-[320px]">
+              <ShearStressDiagram analysis={analysis} shaft={shaft} lengthUnit={lengthUnit} />
             </div>
+          </div>
+
+          <div className="rounded-lg border border-border p-4 surface-raised flex items-center justify-center">
+            <StressHeatmap analysis={analysis} shaft={shaft} />
           </div>
         </main>
       </div>

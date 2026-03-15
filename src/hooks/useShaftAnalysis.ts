@@ -16,6 +16,7 @@ export interface ShaftConfig {
 export interface AnalysisResult {
   positions: number[];
   internalTorques: number[];
+  shearStresses: number[];
   maxShearStress: number;
   polarMoment: number;
   yieldExceeded: boolean;
@@ -55,6 +56,7 @@ export function useShaftAnalysis() {
       internalTorques.push(T);
     }
 
+    const shearStresses = internalTorques.map(T_val => Math.abs(T_val) * r / J / 1e6);
     const maxT = Math.max(...internalTorques.map(Math.abs));
     const maxShearStress = (maxT * r) / J / 1e6; // Convert to MPa
     const yieldExceeded = maxShearStress > shaft.yieldStrength;
@@ -66,6 +68,7 @@ export function useShaftAnalysis() {
     return {
       positions,
       internalTorques,
+      shearStresses,
       maxShearStress,
       polarMoment: J,
       yieldExceeded,
