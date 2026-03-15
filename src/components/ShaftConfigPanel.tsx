@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ShaftConfig } from '@/hooks/useShaftAnalysis';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,25 +9,41 @@ interface Props {
   onChange: (shaft: ShaftConfig) => void;
 }
 
-const materials = [
-  { name: 'Mild Steel', G: 79, yield: 240 },
-  { name: 'Stainless Steel', G: 77, yield: 370 },
-  { name: 'Aluminum 6061', G: 26, yield: 207 },
-  { name: 'Titanium Ti-6Al-4V', G: 44, yield: 550 },
+const gUnits = [
+  { label: 'GPa', toGPa: 1 },
+  { label: 'MPa', toGPa: 1e-3 },
+  { label: 'psi', toGPa: 6.89476e-6 },
+  { label: 'ksi', toGPa: 6.89476e-3 },
 ];
 
 export default function ShaftConfigPanel({ shaft, onChange }: Props) {
+  const [gUnitIdx, setGUnitIdx] = useState(0);
+
   const update = (field: keyof ShaftConfig, value: string) => {
+    if (value === '') {
+      onChange({ ...shaft, [field]: 0 });
+      return;
+    }
     const num = parseFloat(value);
-    if (!isNaN(num) && num > 0) {
+    if (!isNaN(num) && num >= 0) {
       onChange({ ...shaft, [field]: num });
     }
   };
 
-  const selectMaterial = (idx: number) => {
-    const m = materials[idx];
-    onChange({ ...shaft, shearModulus: m.G, yieldStrength: m.yield });
+  const handleGChange = (value: string) => {
+    if (value === '') {
+      onChange({ ...shaft, shearModulus: 0 });
+      return;
+    }
+    const num = parseFloat(value);
+    if (!isNaN(num) && num >= 0) {
+      onChange({ ...shaft, shearModulus: num * gUnits[gUnitIdx].toGPa });
+    }
   };
+
+  const displayG = shaft.shearModulus > 0
+    ? parseFloat((shaft.shearModulus / gUnits[gUnitIdx].toGPa).toPrecision(10))
+    : '';
 
   return (
     <div className="space-y-5">
@@ -44,7 +61,8 @@ export default function ShaftConfigPanel({ shaft, onChange }: Props) {
           </Label>
           <Input
             type="number"
-            value={shaft.length}
+            placeholder="e.g. 1000"
+            value={shaft.length || ''}
             onChange={e => update('length', e.target.value)}
             className="font-mono text-sm bg-background border-border"
           />
@@ -55,56 +73,53 @@ export default function ShaftConfigPanel({ shaft, onChange }: Props) {
           </Label>
           <Input
             type="number"
-            value={shaft.diameter}
+            placeholder="e.g. 50"
+            value={shaft.diameter || ''}
             onChange={e => update('diameter', e.target.value)}
             className="font-mono text-sm bg-background border-border"
           />
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label className="text-xs text-muted-foreground">Material Preset</Label>
-        <div className="grid grid-cols-2 gap-1.5">
-          {materials.map((m, i) => {
-            const isActive = shaft.shearModulus === m.G && shaft.yieldStrength === m.yield;
-            return (
+      <div className="space-y-1.5">
+        <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
+          <Gauge className="h-3 w-3" /> Shear Modulus (G)
+        </Label>
+        <div className="flex gap-2">
+          <Input
+            type="number"
+            placeholder="e.g. 79"
+            value={displayG}
+            onChange={e => handleGChange(e.target.value)}
+            className="font-mono text-sm bg-background border-border flex-1"
+          />
+          <div className="flex rounded-md border border-border overflow-hidden">
+            {gUnits.map((u, i) => (
               <button
-                key={m.name}
-                onClick={() => selectMaterial(i)}
-                className={`text-xs px-2.5 py-2 rounded-md border transition-all text-left ${
-                  isActive
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border bg-background text-muted-foreground hover:border-muted-foreground/50'
+                key={u.label}
+                onClick={() => setGUnitIdx(i)}
+                className={`text-[10px] px-2 py-1 transition-colors ${
+                  i === gUnitIdx
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-background text-muted-foreground hover:bg-muted'
                 }`}
               >
-                {m.name}
+                {u.label}
               </button>
-            );
-          })}
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
-            <Gauge className="h-3 w-3" /> G (GPa)
-          </Label>
-          <Input
-            type="number"
-            value={shaft.shearModulus}
-            onChange={e => update('shearModulus', e.target.value)}
-            className="font-mono text-sm bg-background border-border"
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">τ_yield (MPa)</Label>
-          <Input
-            type="number"
-            value={shaft.yieldStrength}
-            onChange={e => update('yieldStrength', e.target.value)}
-            className="font-mono text-sm bg-background border-border"
-          />
-        </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs text-muted-foreground">τ_yield (MPa)</Label>
+        <Input
+          type="number"
+          placeholder="e.g. 240"
+          value={shaft.yieldStrength || ''}
+          onChange={e => update('yieldStrength', e.target.value)}
+          className="font-mono text-sm bg-background border-border"
+        />
       </div>
     </div>
   );
