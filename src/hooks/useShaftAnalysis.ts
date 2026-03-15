@@ -56,6 +56,7 @@ export function useShaftAnalysis() {
       internalTorques.push(T);
     }
 
+    const shearStresses = internalTorques.map(T_val => Math.abs(T_val) * r / J / 1e6);
     const maxT = Math.max(...internalTorques.map(Math.abs));
     const maxShearStress = (maxT * r) / J / 1e6; // Convert to MPa
     const yieldExceeded = maxShearStress > shaft.yieldStrength;
