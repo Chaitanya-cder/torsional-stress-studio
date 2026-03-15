@@ -24,18 +24,15 @@ export interface AnalysisResult {
 }
 
 const DEFAULT_SHAFT: ShaftConfig = {
-  length: 1000,
-  diameter: 50,
-  shearModulus: 79, // Steel
-  yieldStrength: 240, // Mild steel shear yield
+  length: 0,
+  diameter: 0,
+  shearModulus: 0,
+  yieldStrength: 0,
 };
 
 export function useShaftAnalysis() {
   const [shaft, setShaft] = useState<ShaftConfig>(DEFAULT_SHAFT);
-  const [torques, setTorques] = useState<TorqueLoad[]>([
-    { id: '1', position: 200, magnitude: 500 },
-    { id: '2', position: 600, magnitude: -300 },
-  ]);
+  const [torques, setTorques] = useState<TorqueLoad[]>([]);
 
   const analysis = useMemo((): AnalysisResult => {
     const d = shaft.diameter / 1000; // convert mm to m
