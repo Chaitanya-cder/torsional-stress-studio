@@ -1,5 +1,5 @@
+import { useState } from 'react';
 import { TorqueLoad, ShaftConfig } from '@/hooks/useShaftAnalysis';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2, RotateCcw } from 'lucide-react';
 import { LengthUnit, convertFromMm, convertToMm } from '@/lib/units';
@@ -14,9 +14,32 @@ interface Props {
 }
 
 export default function TorqueTable({ torques, shaft, onAdd, onRemove, onUpdate, lengthUnit }: Props) {
+  // Track string values per torque for decimal support
+  const [posStrs, setPosStrs] = useState<Record<string, string>>({});
+  const [magStrs, setMagStrs] = useState<Record<string, string>>({});
+
   const handlePositionChange = (id: string, value: string) => {
-    const num = parseFloat(value) || 0;
-    onUpdate(id, 'position', convertToMm(num, lengthUnit));
+    setPosStrs(prev => ({ ...prev, [id]: value }));
+    if (value === '' || value === '.') return;
+    const num = parseFloat(value);
+    if (!isNaN(num)) onUpdate(id, 'position', convertToMm(num, lengthUnit));
+  };
+
+  const handleMagnitudeChange = (id: string, value: string) => {
+    setMagStrs(prev => ({ ...prev, [id]: value }));
+    if (value === '' || value === '.') return;
+    const num = parseFloat(value);
+    if (!isNaN(num)) onUpdate(id, 'magnitude', num);
+  };
+
+  const getPositionDisplay = (t: TorqueLoad) => {
+    if (posStrs[t.id] !== undefined) return posStrs[t.id];
+    return parseFloat(convertFromMm(t.position, lengthUnit).toPrecision(10)).toString();
+  };
+
+  const getMagnitudeDisplay = (t: TorqueLoad) => {
+    if (magStrs[t.id] !== undefined) return magStrs[t.id];
+    return t.magnitude.toString();
   };
 
   return (
@@ -46,19 +69,19 @@ export default function TorqueTable({ torques, shaft, onAdd, onRemove, onUpdate,
 
         {torques.map(t => (
           <div key={t.id} className="grid grid-cols-[1fr_1fr_32px] gap-2 items-center">
-            <Input
-              type="number"
-              value={parseFloat(convertFromMm(t.position, lengthUnit).toPrecision(10))}
-              min={0}
-              max={convertFromMm(shaft.length, lengthUnit)}
+            <input
+              type="text"
+              inputMode="decimal"
+              value={getPositionDisplay(t)}
               onChange={e => handlePositionChange(t.id, e.target.value)}
-              className="font-mono text-sm h-8 bg-background"
+              className="flex h-8 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 font-mono"
             />
-            <Input
-              type="number"
-              value={t.magnitude}
-              onChange={e => onUpdate(t.id, 'magnitude', parseFloat(e.target.value) || 0)}
-              className={`font-mono text-sm h-8 bg-background ${
+            <input
+              type="text"
+              inputMode="decimal"
+              value={getMagnitudeDisplay(t)}
+              onChange={e => handleMagnitudeChange(t.id, e.target.value)}
+              className={`flex h-8 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 font-mono ${
                 t.magnitude >= 0 ? 'text-safe' : 'text-danger'
               }`}
             />
