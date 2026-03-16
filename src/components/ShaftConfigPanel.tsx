@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { ShaftConfig } from '@/hooks/useShaftAnalysis';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Settings2, CircleDot, Ruler, Gauge } from 'lucide-react';
 import { LengthUnit, lengthUnits, convertToMm, convertFromMm } from '@/lib/units';
@@ -10,6 +9,8 @@ interface Props {
   onChange: (shaft: ShaftConfig) => void;
   lengthUnit: LengthUnit;
   onLengthUnitChange: (u: LengthUnit) => void;
+  diameterUnit: LengthUnit;
+  onDiameterUnitChange: (u: LengthUnit) => void;
 }
 
 const gUnits = [
@@ -19,39 +20,56 @@ const gUnits = [
   { label: 'ksi', toGPa: 6.89476e-3 },
 ];
 
-export default function ShaftConfigPanel({ shaft, onChange, lengthUnit, onLengthUnitChange }: Props) {
+export default function ShaftConfigPanel({ shaft, onChange, lengthUnit, onLengthUnitChange, diameterUnit, onDiameterUnitChange }: Props) {
   const [gUnitIdx, setGUnitIdx] = useState(0);
-
-  const displayLength = shaft.length > 0 ? parseFloat(convertFromMm(shaft.length, lengthUnit).toPrecision(10)) : '';
-  const displayDiameter = shaft.diameter > 0 ? parseFloat(convertFromMm(shaft.diameter, lengthUnit).toPrecision(10)) : '';
+  // Use string state for inputs to allow trailing zeros/decimals
+  const [lengthStr, setLengthStr] = useState('');
+  const [diameterStr, setDiameterStr] = useState('');
+  const [gStr, setGStr] = useState('');
+  const [yieldStr, setYieldStr] = useState('');
 
   const updateLength = (value: string) => {
-    if (value === '') { onChange({ ...shaft, length: 0 }); return; }
+    setLengthStr(value);
+    if (value === '' || value === '.') { onChange({ ...shaft, length: 0 }); return; }
     const num = parseFloat(value);
     if (!isNaN(num) && num >= 0) onChange({ ...shaft, length: convertToMm(num, lengthUnit) });
   };
 
   const updateDiameter = (value: string) => {
-    if (value === '') { onChange({ ...shaft, diameter: 0 }); return; }
+    setDiameterStr(value);
+    if (value === '' || value === '.') { onChange({ ...shaft, diameter: 0 }); return; }
     const num = parseFloat(value);
-    if (!isNaN(num) && num >= 0) onChange({ ...shaft, diameter: convertToMm(num, lengthUnit) });
+    if (!isNaN(num) && num >= 0) onChange({ ...shaft, diameter: convertToMm(num, diameterUnit) });
   };
 
   const updateYield = (value: string) => {
-    if (value === '') { onChange({ ...shaft, yieldStrength: 0 }); return; }
+    setYieldStr(value);
+    if (value === '' || value === '.') { onChange({ ...shaft, yieldStrength: 0 }); return; }
     const num = parseFloat(value);
     if (!isNaN(num) && num >= 0) onChange({ ...shaft, yieldStrength: num });
   };
 
   const handleGChange = (value: string) => {
-    if (value === '') { onChange({ ...shaft, shearModulus: 0 }); return; }
+    setGStr(value);
+    if (value === '' || value === '.') { onChange({ ...shaft, shearModulus: 0 }); return; }
     const num = parseFloat(value);
     if (!isNaN(num) && num >= 0) onChange({ ...shaft, shearModulus: num * gUnits[gUnitIdx].toGPa });
   };
 
-  const displayG = shaft.shearModulus > 0
-    ? parseFloat((shaft.shearModulus / gUnits[gUnitIdx].toGPa).toPrecision(10))
-    : '';
+  // When unit changes, update the string display
+  const handleLengthUnitChange = (u: LengthUnit) => {
+    if (shaft.length > 0) {
+      setLengthStr(convertFromMm(shaft.length, u).toPrecision(10).replace(/\.?0+$/, ''));
+    }
+    onLengthUnitChange(u);
+  };
+
+  const handleDiameterUnitChange = (u: LengthUnit) => {
+    if (shaft.diameter > 0) {
+      setDiameterStr(convertFromMm(shaft.diameter, u).toPrecision(10).replace(/\.?0+$/, ''));
+    }
+    onDiameterUnitChange(u);
+  };
 
   const UnitSwitcher = ({ units, current, onSelect }: { units: string[]; current: string; onSelect: (u: string) => void }) => (
     <div className="flex rounded-md border border-border overflow-hidden">
@@ -80,63 +98,70 @@ export default function ShaftConfigPanel({ shaft, onChange, lengthUnit, onLength
         </h3>
       </div>
 
-      {/* Length unit selector */}
+      {/* Length */}
       <div className="space-y-1.5">
-        <Label className="text-xs text-muted-foreground">Length Unit</Label>
-        <UnitSwitcher units={lengthUnits} current={lengthUnit} onSelect={(u) => onLengthUnitChange(u as LengthUnit)} />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
-            <Ruler className="h-3 w-3" /> Length ({lengthUnit})
-          </Label>
-          <Input
-            type="number"
+        <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
+          <Ruler className="h-3 w-3" /> Length
+        </Label>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            inputMode="decimal"
             placeholder="e.g. 1000"
-            value={displayLength}
+            value={lengthStr}
             onChange={e => updateLength(e.target.value)}
-            className="font-mono text-sm bg-background border-border"
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 font-mono flex-1"
           />
-        </div>
-        <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
-            <CircleDot className="h-3 w-3" /> Diameter ({lengthUnit})
-          </Label>
-          <Input
-            type="number"
-            placeholder="e.g. 50"
-            value={displayDiameter}
-            onChange={e => updateDiameter(e.target.value)}
-            className="font-mono text-sm bg-background border-border"
-          />
+          <UnitSwitcher units={lengthUnits} current={lengthUnit} onSelect={(u) => handleLengthUnitChange(u as LengthUnit)} />
         </div>
       </div>
 
+      {/* Diameter */}
+      <div className="space-y-1.5">
+        <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
+          <CircleDot className="h-3 w-3" /> Diameter
+        </Label>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            inputMode="decimal"
+            placeholder="e.g. 50"
+            value={diameterStr}
+            onChange={e => updateDiameter(e.target.value)}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 font-mono flex-1"
+          />
+          <UnitSwitcher units={lengthUnits} current={diameterUnit} onSelect={(u) => handleDiameterUnitChange(u as LengthUnit)} />
+        </div>
+      </div>
+
+      {/* Shear Modulus */}
       <div className="space-y-1.5">
         <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
           <Gauge className="h-3 w-3" /> Shear Modulus (G)
         </Label>
         <div className="flex gap-2">
-          <Input
-            type="number"
+          <input
+            type="text"
+            inputMode="decimal"
             placeholder="e.g. 79"
-            value={displayG}
+            value={gStr}
             onChange={e => handleGChange(e.target.value)}
-            className="font-mono text-sm bg-background border-border flex-1"
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 font-mono flex-1"
           />
           <UnitSwitcher units={gUnits.map(u => u.label)} current={gUnits[gUnitIdx].label} onSelect={(label) => setGUnitIdx(gUnits.findIndex(u => u.label === label))} />
         </div>
       </div>
 
+      {/* Yield Strength */}
       <div className="space-y-1.5">
         <Label className="text-xs text-muted-foreground">τ_yield (MPa)</Label>
-        <Input
-          type="number"
+        <input
+          type="text"
+          inputMode="decimal"
           placeholder="e.g. 240"
-          value={shaft.yieldStrength || ''}
+          value={yieldStr}
           onChange={e => updateYield(e.target.value)}
-          className="font-mono text-sm bg-background border-border"
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 font-mono"
         />
       </div>
     </div>

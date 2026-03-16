@@ -11,7 +11,7 @@ export default function ResultsPanel({ analysis, shaft }: Props) {
 
   const metrics = [
     {
-      label: 'Max Shear Stress',
+      label: 'Max Torsional Shear Stress',
       value: `${maxShearStress.toFixed(2)} MPa`,
       icon: Activity,
       status: yieldExceeded ? 'danger' : 'safe',
