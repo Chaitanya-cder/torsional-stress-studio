@@ -44,7 +44,7 @@ export function useShaftAnalysis() {
     const internalTorques: number[] = [];
 
     for (let i = 0; i <= numPoints; i++) {
-      const x = (i / numPoints) * shaft.length;
+      const x = shaft.length > 0 ? (i / numPoints) * shaft.length : 0;
       positions.push(x);
 
       let T = 0;
@@ -56,14 +56,40 @@ export function useShaftAnalysis() {
       internalTorques.push(T);
     }
 
-    const shearStresses = internalTorques.map(T_val => Math.abs(T_val) * r / J / 1e6);
-    const maxT = Math.max(...internalTorques.map(Math.abs));
-    const maxShearStress = (maxT * r) / J / 1e6; // Convert to MPa
-    const yieldExceeded = maxShearStress > shaft.yieldStrength;
+    const shearStresses = J > 0
+      ? internalTorques.map(T_val => Math.abs(T_val) * r / J / 1e6)
+      : internalTorques.map(() => 0);
+    const maxT = Math.max(...internalTorques.map(Math.abs), 0);
+    const maxShearStress = J > 0 ? (maxT * r) / J / 1e6 : 0; // MPa
+    const yieldExceeded = shaft.yieldStrength > 0 && maxShearStress > shaft.yieldStrength;
     const safetyFactor = maxShearStress > 0 ? shaft.yieldStrength / maxShearStress : Infinity;
-    
-    const totalTorque = torques.reduce((sum, t) => sum + t.magnitude, 0);
-    const angleOfTwist = (totalTorque * (shaft.length / 1000)) / (shaft.shearModulus * 1e9 * J) * (180 / Math.PI);
+
+    // Angle of twist: piecewise integration φ = Σ T_i * ΔL_i / (G * J)
+    let angleOfTwist = 0;
+    if (J > 0 && shaft.shearModulus > 0 && shaft.length > 0) {
+      // Sort torque positions to define segments
+      const sortedTorques = [...torques].sort((a, b) => a.position - b.position);
+      const breakpoints = [0, ...sortedTorques.map(t => t.position), shaft.length];
+      // Remove duplicates and sort
+      const uniqueBreaks = [...new Set(breakpoints)].sort((a, b) => a - b);
+
+      for (let i = 0; i < uniqueBreaks.length - 1; i++) {
+        const segStart = uniqueBreaks[i];
+        const segEnd = uniqueBreaks[i + 1];
+        const segLen = (segEnd - segStart) / 1000; // convert mm to m
+
+        // Internal torque in this segment = sum of torques at or before segStart
+        let T_seg = 0;
+        for (const t of torques) {
+          if (t.position <= segStart) {
+            T_seg += t.magnitude;
+          }
+        }
+
+        angleOfTwist += (T_seg * segLen) / (shaft.shearModulus * 1e9 * J);
+      }
+      angleOfTwist = angleOfTwist * (180 / Math.PI); // convert to degrees
+    }
 
     return {
       positions,
