@@ -18,7 +18,7 @@ export default function ShaftSchematic({ shaft, torques, lengthUnit }: Props) {
   const shaftRight = svgWidth - margin;
   const shaftLen = shaftRight - shaftLeft;
 
-  const posToX = (pos: number) => shaftLeft + (pos / shaft.length) * shaftLen;
+  const posToX = (pos: number) => shaft.length > 0 ? shaftLeft + (pos / shaft.length) * shaftLen : shaftLeft;
   const fmt = (mm: number) => parseFloat(convertFromMm(mm, lengthUnit).toPrecision(6));
 
   return (
