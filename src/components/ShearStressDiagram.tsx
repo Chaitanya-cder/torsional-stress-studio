@@ -26,7 +26,7 @@ export default function ShearStressDiagram({ analysis, shaft, lengthUnit }: Prop
       <div className="flex items-center gap-2 mb-3">
         <Activity className="h-4 w-4 text-primary" />
         <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Shear Stress Diagram
+          Torsional Shear Stress Diagram
         </h3>
       </div>
 
