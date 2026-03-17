@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { useRef, useState } from 'react';
 import { Cog, BarChart3, Shield, Layers, Zap, ArrowRight } from 'lucide-react';
 
 const FadeInSection = ({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) => {
@@ -49,9 +49,19 @@ const features = [
 
 const Home = () => {
   const navigate = useNavigate();
+  const [isExiting, setIsExiting] = useState(false);
+
+  const handleStartAnalysis = () => {
+    setIsExiting(true);
+    setTimeout(() => navigate('/analysis'), 600);
+  };
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+    <motion.div
+      className="min-h-screen bg-background text-foreground overflow-x-hidden"
+      animate={isExiting ? { opacity: 0, scale: 0.97, filter: 'blur(6px)' } : { opacity: 1, scale: 1, filter: 'blur(0px)' }}
+      transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
+    >
       {/* Navbar */}
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 backdrop-blur-xl bg-background/70">
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
@@ -130,7 +140,7 @@ const Home = () => {
             transition={{ duration: 0.6, delay: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             <motion.button
-              onClick={() => navigate('/analysis')}
+              onClick={handleStartAnalysis}
               className="relative inline-flex items-center gap-2 px-8 py-3.5 rounded-lg bg-primary text-primary-foreground font-semibold text-sm tracking-wide shadow-[0_0_30px_-5px_hsl(var(--primary)/0.4)] transition-shadow"
               whileHover={{
                 scale: 1.06,
@@ -153,24 +163,6 @@ const Home = () => {
             </motion.button>
           </motion.div>
 
-          {/* Decorative stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            className="mt-16 grid grid-cols-3 gap-6 max-w-md mx-auto"
-          >
-            {[
-              { label: 'Stress Analysis', value: 'τ = Tρ/J' },
-              { label: 'Safety Factor', value: 'τ_y / τ_max' },
-              { label: 'Angle of Twist', value: 'TL/GJ' },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="font-mono text-primary text-sm font-semibold">{stat.value}</p>
-                <p className="text-muted-foreground text-[10px] uppercase tracking-widest mt-1">{stat.label}</p>
-              </div>
-            ))}
-          </motion.div>
         </div>
       </section>
 
@@ -213,11 +205,9 @@ const Home = () => {
 
       {/* Footer */}
       <footer className="border-t border-border py-6 text-center">
-        <p className="text-muted-foreground text-xs font-mono">
-          TorsionLab · Torsional Shear Stress Analysis · τ = Tρ/J
-        </p>
+        <p className="text-muted-foreground text-xs font-mono">TorsionLab</p>
       </footer>
-    </div>
+    </motion.div>
   );
 };
 
