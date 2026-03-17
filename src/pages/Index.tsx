@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useShaftAnalysis } from '@/hooks/useShaftAnalysis';
 import ShaftConfigPanel from '@/components/ShaftConfigPanel';
 import TorqueTable from '@/components/TorqueTable';
@@ -10,10 +11,11 @@ import ResultsPanel from '@/components/ResultsPanel';
 import CalculationsPanel from '@/components/CalculationsPanel';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Cog } from 'lucide-react';
+import { Cog, ArrowLeft } from 'lucide-react';
 import { LengthUnit } from '@/lib/units';
 
 const Index = () => {
+  const navigate = useNavigate();
   const { shaft, setShaft, torques, addTorque, removeTorque, updateTorque, analysis } = useShaftAnalysis();
   const [lengthUnit, setLengthUnit] = useState<LengthUnit>('mm');
   const [diameterUnit, setDiameterUnit] = useState<LengthUnit>('mm');
@@ -22,6 +24,9 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
+          <button onClick={() => navigate('/')} className="h-8 w-8 rounded-md bg-secondary hover:bg-accent flex items-center justify-center transition-colors" title="Back to Home">
+            <ArrowLeft className="h-4 w-4 text-muted-foreground" />
+          </button>
           <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center">
             <Cog className="h-4 w-4 text-primary" />
           </div>
