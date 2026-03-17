@@ -140,7 +140,7 @@ const Home = () => {
             transition={{ duration: 0.6, delay: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             <motion.button
-              onClick={() => navigate('/analysis')}
+              onClick={handleStartAnalysis}
               className="relative inline-flex items-center gap-2 px-8 py-3.5 rounded-lg bg-primary text-primary-foreground font-semibold text-sm tracking-wide shadow-[0_0_30px_-5px_hsl(var(--primary)/0.4)] transition-shadow"
               whileHover={{
                 scale: 1.06,
