@@ -211,24 +211,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Bottom CTA */}
-      <section className="py-20 border-t border-border">
-        <FadeInSection className="text-center px-6">
-          <h3 className="text-2xl font-bold mb-4">Ready to begin your analysis?</h3>
-          <p className="text-muted-foreground text-sm mb-8 max-w-md mx-auto">
-            Configure your shaft parameters, apply torque loads, and visualize stress distributions in seconds.
-          </p>
-          <Button
-            size="lg"
-            onClick={() => navigate('/analysis')}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 glow-safe"
-          >
-            Launch Analyzer
-            <ArrowRight className="h-4 w-4 ml-1" />
-          </Button>
-        </FadeInSection>
-      </section>
-
       {/* Footer */}
       <footer className="border-t border-border py-6 text-center">
         <p className="text-muted-foreground text-xs font-mono">
