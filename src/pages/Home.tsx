@@ -207,7 +207,7 @@ const Home = () => {
       <footer className="border-t border-border py-6 text-center">
         <p className="text-muted-foreground text-xs font-mono">TorsionLab</p>
       </footer>
-    </div>
+    </motion.div>
   );
 };
 
