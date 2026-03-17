@@ -65,11 +65,47 @@ const Home = () => {
       </header>
 
       {/* Hero */}
-      <section className="relative min-h-screen flex items-center justify-center pt-14">
+      <section className="relative min-h-screen flex items-center justify-center pt-14 overflow-hidden">
         {/* Grid background */}
         <div className="absolute inset-0 grid-pattern opacity-30" />
         {/* Radial gradient overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsl(var(--primary)/0.08)_0%,_transparent_70%)]" />
+
+        {/* Floating animated particles */}
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full bg-primary/10 border border-primary/20"
+            style={{
+              width: 8 + i * 6,
+              height: 8 + i * 6,
+              left: `${15 + i * 14}%`,
+              top: `${20 + (i % 3) * 25}%`,
+            }}
+            animate={{
+              y: [0, -20, 0],
+              opacity: [0.3, 0.6, 0.3],
+            }}
+            transition={{
+              duration: 3 + i * 0.5,
+              repeat: Infinity,
+              ease: 'easeInOut',
+              delay: i * 0.4,
+            }}
+          />
+        ))}
+
+        {/* Animated rotating ring */}
+        <motion.div
+          className="absolute w-[500px] h-[500px] rounded-full border border-primary/5"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
+        />
+        <motion.div
+          className="absolute w-[350px] h-[350px] rounded-full border border-primary/10 border-dashed"
+          animate={{ rotate: -360 }}
+          transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
+        />
 
         <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
           <motion.div
