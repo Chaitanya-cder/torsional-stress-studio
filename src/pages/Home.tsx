@@ -1,8 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
-import { Cog, BarChart3, Shield, Layers, Zap, ArrowRight, Activity } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Cog, BarChart3, Shield, Layers, Zap, ArrowRight } from 'lucide-react';
 
 const FadeInSection = ({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) => {
   const ref = useRef(null);
@@ -62,24 +61,51 @@ const Home = () => {
             </div>
             <span className="text-sm font-bold tracking-tight">TorsionLab</span>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/analysis')}
-            className="border-primary/30 text-primary hover:bg-primary/10"
-          >
-            Open Analyzer
-            <ArrowRight className="h-3 w-3 ml-1" />
-          </Button>
         </div>
       </header>
 
       {/* Hero */}
-      <section className="relative min-h-screen flex items-center justify-center pt-14">
+      <section className="relative min-h-screen flex items-center justify-center pt-14 overflow-hidden">
         {/* Grid background */}
         <div className="absolute inset-0 grid-pattern opacity-30" />
         {/* Radial gradient overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsl(var(--primary)/0.08)_0%,_transparent_70%)]" />
+
+        {/* Floating animated particles */}
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full bg-primary/10 border border-primary/20"
+            style={{
+              width: 8 + i * 6,
+              height: 8 + i * 6,
+              left: `${15 + i * 14}%`,
+              top: `${20 + (i % 3) * 25}%`,
+            }}
+            animate={{
+              y: [0, -20, 0],
+              opacity: [0.3, 0.6, 0.3],
+            }}
+            transition={{
+              duration: 3 + i * 0.5,
+              repeat: Infinity,
+              ease: 'easeInOut',
+              delay: i * 0.4,
+            }}
+          />
+        ))}
+
+        {/* Animated rotating ring */}
+        <motion.div
+          className="absolute w-[500px] h-[500px] rounded-full border border-primary/5"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
+        />
+        <motion.div
+          className="absolute w-[350px] h-[350px] rounded-full border border-primary/10 border-dashed"
+          animate={{ rotate: -360 }}
+          transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
+        />
 
         <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
           <motion.div
@@ -87,11 +113,6 @@ const Home = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-secondary/50 text-muted-foreground text-xs font-mono mb-8">
-              <Activity className="h-3 w-3 text-primary" />
-              Solid Circular Shaft · τ = Tρ/J
-            </div>
-
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
               Welcome to the{' '}
               <span className="text-primary">Torsional Engineering</span>{' '}
@@ -188,24 +209,6 @@ const Home = () => {
             ))}
           </div>
         </div>
-      </section>
-
-      {/* Bottom CTA */}
-      <section className="py-20 border-t border-border">
-        <FadeInSection className="text-center px-6">
-          <h3 className="text-2xl font-bold mb-4">Ready to begin your analysis?</h3>
-          <p className="text-muted-foreground text-sm mb-8 max-w-md mx-auto">
-            Configure your shaft parameters, apply torque loads, and visualize stress distributions in seconds.
-          </p>
-          <Button
-            size="lg"
-            onClick={() => navigate('/analysis')}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 glow-safe"
-          >
-            Launch Analyzer
-            <ArrowRight className="h-4 w-4 ml-1" />
-          </Button>
-        </FadeInSection>
       </section>
 
       {/* Footer */}
