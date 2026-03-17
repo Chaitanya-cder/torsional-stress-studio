@@ -49,9 +49,19 @@ const features = [
 
 const Home = () => {
   const navigate = useNavigate();
+  const [isExiting, setIsExiting] = useState(false);
+
+  const handleStartAnalysis = () => {
+    setIsExiting(true);
+    setTimeout(() => navigate('/analysis'), 600);
+  };
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+    <motion.div
+      className="min-h-screen bg-background text-foreground overflow-x-hidden"
+      animate={isExiting ? { opacity: 0, scale: 0.97, filter: 'blur(6px)' } : { opacity: 1, scale: 1, filter: 'blur(0px)' }}
+      transition={{ duration: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
+    >
       {/* Navbar */}
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 backdrop-blur-xl bg-background/70">
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
