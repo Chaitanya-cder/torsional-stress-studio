@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useShaftAnalysis } from '@/hooks/useShaftAnalysis';
 import ShaftConfigPanel from '@/components/ShaftConfigPanel';
 import TorqueTable from '@/components/TorqueTable';
@@ -10,7 +11,8 @@ import ResultsPanel from '@/components/ResultsPanel';
 import CalculationsPanel from '@/components/CalculationsPanel';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Cog } from 'lucide-react';
+import { Cog, ArrowLeft } from 'lucide-react';
+import { LengthUnit } from '@/lib/units';
 import { LengthUnit } from '@/lib/units';
 
 const Index = () => {
