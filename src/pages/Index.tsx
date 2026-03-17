@@ -13,7 +13,6 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Cog, ArrowLeft } from 'lucide-react';
 import { LengthUnit } from '@/lib/units';
-import { LengthUnit } from '@/lib/units';
 
 const Index = () => {
   const { shaft, setShaft, torques, addTorque, removeTorque, updateTorque, analysis } = useShaftAnalysis();
