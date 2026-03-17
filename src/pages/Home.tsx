@@ -77,11 +77,6 @@ const Home = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-secondary/50 text-muted-foreground text-xs font-mono mb-8">
-              <Activity className="h-3 w-3 text-primary" />
-              Solid Circular Shaft · τ = Tρ/J
-            </div>
-
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-6">
               Welcome to the{' '}
               <span className="text-primary">Torsional Engineering</span>{' '}
