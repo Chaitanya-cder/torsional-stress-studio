@@ -153,24 +153,6 @@ const Home = () => {
             </motion.button>
           </motion.div>
 
-          {/* Decorative stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            className="mt-16 grid grid-cols-3 gap-6 max-w-md mx-auto"
-          >
-            {[
-              { label: 'Stress Analysis', value: 'τ = Tρ/J' },
-              { label: 'Safety Factor', value: 'τ_y / τ_max' },
-              { label: 'Angle of Twist', value: 'TL/GJ' },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="font-mono text-primary text-sm font-semibold">{stat.value}</p>
-                <p className="text-muted-foreground text-[10px] uppercase tracking-widest mt-1">{stat.label}</p>
-              </div>
-            ))}
-          </motion.div>
         </div>
       </section>
 
