@@ -61,15 +61,6 @@ const Home = () => {
             </div>
             <span className="text-sm font-bold tracking-tight">TorsionLab</span>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/analysis')}
-            className="border-primary/30 text-primary hover:bg-primary/10"
-          >
-            Open Analyzer
-            <ArrowRight className="h-3 w-3 ml-1" />
-          </Button>
         </div>
       </header>
 
