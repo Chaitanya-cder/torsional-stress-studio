@@ -138,4 +138,7 @@ const StressHeatmap = forwardRef<HTMLDivElement, Props>(({ analysis, shaft }, re
       </div>
     </div>
   );
-}
+});
+
+StressHeatmap.displayName = 'StressHeatmap';
+export default StressHeatmap;

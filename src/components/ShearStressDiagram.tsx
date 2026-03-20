@@ -97,4 +97,7 @@ const ShearStressDiagram = forwardRef<HTMLDivElement, Props>(({ analysis, shaft,
       </div>
     </div>
   );
-}
+});
+
+ShearStressDiagram.displayName = 'ShearStressDiagram';
+export default ShearStressDiagram;
