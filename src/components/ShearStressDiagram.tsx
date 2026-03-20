@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, forwardRef } from 'react';
 import { AnalysisResult, ShaftConfig } from '@/hooks/useShaftAnalysis';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { Activity } from 'lucide-react';
@@ -10,7 +10,7 @@ interface Props {
   lengthUnit: LengthUnit;
 }
 
-export default function ShearStressDiagram({ analysis, shaft, lengthUnit }: Props) {
+const ShearStressDiagram = forwardRef<HTMLDivElement, Props>(({ analysis, shaft, lengthUnit }, ref) => {
   const maxT = Math.max(...analysis.internalTorques.map(Math.abs), 0);
   const r = shaft.diameter / 2000; // radius in meters
   const J = analysis.polarMoment;
