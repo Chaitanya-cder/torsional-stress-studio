@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect } from 'react';
+import { useRef, useEffect, forwardRef } from 'react';
 import { AnalysisResult, ShaftConfig } from '@/hooks/useShaftAnalysis';
 import { Target } from 'lucide-react';
 
@@ -7,13 +7,13 @@ interface Props {
   shaft: ShaftConfig;
 }
 
-export default function StressHeatmap({ analysis, shaft }: Props) {
+const StressHeatmap = forwardRef<HTMLDivElement, Props>(({ analysis, shaft }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const maxT = Math.max(...analysis.internalTorques.map(Math.abs));
-  const r = shaft.diameter / 2000; // radius in meters
+  const maxT = Math.max(...analysis.internalTorques.map(Math.abs), 0);
+  const r = shaft.diameter / 2000;
   const J = analysis.polarMoment;
-  const maxStress = (maxT * r) / J / 1e6;
+  const maxStress = J > 0 ? (maxT * r) / J / 1e6 : 0;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -138,4 +138,7 @@ export default function StressHeatmap({ analysis, shaft }: Props) {
       </div>
     </div>
   );
-}
+});
+
+StressHeatmap.displayName = 'StressHeatmap';
+export default StressHeatmap;
