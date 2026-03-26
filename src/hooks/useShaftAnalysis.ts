@@ -43,11 +43,15 @@ export function useShaftAnalysis() {
     const positions: number[] = [];
     const internalTorques: number[] = [];
 
+    // Assume fixed support at x=0: reaction = -sum(all applied torques)
+    const totalTorque = torques.reduce((s, t) => s + t.magnitude, 0);
+
     for (let i = 0; i <= numPoints; i++) {
       const x = shaft.length > 0 ? (i / numPoints) * shaft.length : 0;
       positions.push(x);
 
-      let T = 0;
+      // Internal torque = reaction + sum of applied torques at positions <= x
+      let T = -totalTorque;
       for (const torque of torques) {
         if (torque.position <= x) {
           T += torque.magnitude;
@@ -78,8 +82,8 @@ export function useShaftAnalysis() {
         const segEnd = uniqueBreaks[i + 1];
         const segLen = (segEnd - segStart) / 1000; // convert mm to m
 
-        // Internal torque in this segment = sum of torques at or before segStart
-        let T_seg = 0;
+        // Internal torque in this segment = reaction + sum of torques at or before segStart
+        let T_seg = -totalTorque;
         for (const t of torques) {
           if (t.position <= segStart) {
             T_seg += t.magnitude;
