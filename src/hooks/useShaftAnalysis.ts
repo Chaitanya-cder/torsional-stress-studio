@@ -92,7 +92,7 @@ export function useShaftAnalysis() {
 
         angleOfTwist += (T_seg * segLen) / (shaft.shearModulus * 1e9 * J);
       }
-      angleOfTwist = angleOfTwist * (180 / Math.PI); // convert to degrees
+      angleOfTwist = -angleOfTwist * (180 / Math.PI); // negate so positive torque → positive twist
     }
 
     return {
