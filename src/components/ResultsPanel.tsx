@@ -9,6 +9,17 @@ interface Props {
 export default function ResultsPanel({ analysis, shaft }: Props) {
   const { maxShearStress, yieldExceeded, safetyFactor, polarMoment, angleOfTwist } = analysis;
 
+  const formatSciNotation = (val: number, digits: number = 4) => {
+    const exp = Math.floor(Math.log10(Math.abs(val)));
+    const mantissa = val / Math.pow(10, exp);
+    const superscriptDigits: Record<string, string> = {
+      '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+      '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
+    };
+    const supExp = String(exp).split('').map(c => superscriptDigits[c] || c).join('');
+    return `${mantissa.toFixed(digits)} × 10${supExp}`;
+  };
+
   const metrics = [
     {
       label: 'Max Torsional Shear Stress',
@@ -24,7 +35,7 @@ export default function ResultsPanel({ analysis, shaft }: Props) {
     },
     {
       label: 'Polar Moment J',
-      value: `${polarMoment.toExponential(4)} m⁴`,
+      value: polarMoment > 0 ? `${formatSciNotation(polarMoment)} m⁴` : '0 m⁴',
       icon: Cog,
       status: 'neutral' as const,
     },
