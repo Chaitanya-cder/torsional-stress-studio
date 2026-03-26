@@ -24,7 +24,7 @@ export default function ResultsPanel({ analysis, shaft }: Props) {
     },
     {
       label: 'Polar Moment J',
-      value: `${(polarMoment * 1e12).toFixed(2)} mm⁴`,
+      value: `${polarMoment.toExponential(4)} m⁴`,
       icon: Cog,
       status: 'neutral' as const,
     },
