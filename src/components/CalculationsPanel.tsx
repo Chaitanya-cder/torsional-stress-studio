@@ -17,6 +17,18 @@ export default function CalculationsPanel({ analysis, shaft, torques, lengthUnit
   const displayD = convertFromMm(shaft.diameter, diameterUnit);
   const displayL = convertFromMm(shaft.length, lengthUnit);
 
+  const formatSci = (val: number, digits: number = 4) => {
+    if (val === 0) return '0';
+    const exp = Math.floor(Math.log10(Math.abs(val)));
+    const mantissa = val / Math.pow(10, exp);
+    const sup: Record<string, string> = {
+      '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+      '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
+    };
+    const supExp = String(exp).split('').map(c => sup[c] || c).join('');
+    return `${mantissa.toFixed(digits)} × 10${supExp}`;
+  };
+
   const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <div className="border border-border rounded-lg p-4 space-y-2">
       <h4 className="text-xs font-semibold uppercase tracking-wider text-primary">{title}</h4>
@@ -85,7 +97,7 @@ export default function CalculationsPanel({ analysis, shaft, torques, lengthUnit
         <Step
           label="Substitution"
           formula={`J = π × (${d_m.toPrecision(6)})⁴ / 32`}
-          result={`J = ${analysis.polarMoment.toExponential(4)} m⁴ = ${(analysis.polarMoment * 1e12).toFixed(4)} mm⁴`}
+          result={`J = ${formatSci(analysis.polarMoment)} m⁴`}
         />
       </Section>
 
@@ -118,7 +130,7 @@ export default function CalculationsPanel({ analysis, shaft, torques, lengthUnit
           <>
             <Step
               label="Substitution"
-              formula={`τ_max = ${maxT.toFixed(2)} × ${r_m.toPrecision(4)} / ${analysis.polarMoment.toExponential(4)}`}
+              formula={`τ_max = ${maxT.toFixed(2)} × ${r_m.toPrecision(4)} / ${formatSci(analysis.polarMoment)}`}
               result={`τ_max = ${analysis.maxShearStress.toFixed(4)} MPa`}
             />
             <Step
@@ -158,7 +170,7 @@ export default function CalculationsPanel({ analysis, shaft, torques, lengthUnit
         {torques.length > 0 ? (
           <Step
             label="Result"
-            formula={`φ = (${torques.reduce((s, t) => s + t.magnitude, 0).toFixed(2)} × ${L_m.toPrecision(4)}) / (${(shaft.shearModulus * 1e9).toExponential(3)} × ${analysis.polarMoment.toExponential(4)})`}
+            formula={`φ = (${torques.reduce((s, t) => s + t.magnitude, 0).toFixed(2)} × ${L_m.toPrecision(4)}) / (${formatSci(shaft.shearModulus * 1e9, 3)} × ${formatSci(analysis.polarMoment)})`}
             result={`φ = ${analysis.angleOfTwist.toFixed(6)}°`}
           />
         ) : (
