@@ -13,8 +13,8 @@ How to Edit This Project
 
 2. Using Your Computer (IDE)
 Steps:
-1. git clone <YOUR_GIT_URL>
-2. cd <YOUR_PROJECT_NAME>
+1. git clone <https://github.com/Chaitanya-cder/torsional-stress-studio.git>
+2. cd <Torsional Lab>
 3. npm install
 4. npm run dev
 
